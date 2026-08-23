@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>✦ hackdeck ✦</title>
+<style>
+:root{
+  --bg:#0b0514;--panel:#1d1038;--panel2:#150a26;--ink:#efeaff;
+  --pink:#ff2ec4;--cyan:#00f0ff;--lime:#c6ff00;--violet:#7b2eff;--warn:#ffe600;
+}
+*{box-sizing:border-box}
+body{margin:0;background:linear-gradient(180deg,var(--bg),#1a0b33 90%);color:var(--ink);
+  font:15px/1.55 ui-monospace,'SF Mono',Menlo,Consolas,monospace;min-height:100vh;padding:22px 16px 60px}
+main{max-width:980px;margin:0 auto}
+h1{font-size:24px;font-weight:900;color:var(--pink);letter-spacing:5px;margin:6px 0 2px}
+.sub{color:#9a90c8;font-size:12px;letter-spacing:2px;text-transform:uppercase;margin-bottom:20px}
+.sub b{color:var(--lime)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:14px}
+.card{background:var(--panel);border:1px solid #3a2564;border-radius:14px;padding:14px 16px;
+  box-shadow:0 2px 10px rgba(0,0,0,.45);transition:border-color .15s}
+.card:hover{border-color:var(--pink)}
+.card h2{font-size:11px;font-weight:900;letter-spacing:3px;text-transform:uppercase;color:var(--cyan);margin:0 0 10px}
+textarea,input[type=text],input[type=number]{width:100%;background:var(--panel2);color:var(--ink);
+  border:1px solid #43297a;border-radius:8px;padding:8px 10px;font:inherit;font-size:13px;outline:none}
+textarea:focus,input:focus{border-color:var(--cyan)}
+textarea{resize:vertical;min-height:64px}
+.row{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap;align-items:center}
+button{cursor:pointer;border:0;border-radius:8px;padding:7px 13px;font:inherit;font-size:12px;
+  font-weight:900;letter-spacing:1px;background:linear-gradient(90deg,var(--pink),var(--violet));color:#fff}
+button.ghost{background:none;border:1px solid var(--violet);color:var(--cyan)}
+button.lime{background:linear-gradient(90deg,var(--lime),var(--cyan));color:#17062e}
+.out{margin-top:8px;background:#12081f;border:1px dashed #4d3480;border-radius:8px;padding:8px 10px;
+  min-height:38px;white-space:pre-wrap;word-break:break-all;font-size:13px}
+.out.ok{border-color:var(--lime)}.out.bad{border-color:var(--warn);color:var(--warn)}
+label.k{font-size:11px;color:#9a90c8;display:block;margin-top:6px}
+footer{margin-top:26px;text-align:center;color:#6f6598;font-size:11px;letter-spacing:1px}
+@media(max-width:420px){h1{font-size:19px}.grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<main>
+<h1>✦ HACKDECK ✦</h1>
+<p class="sub">deck offline de utilidades · <b>todo corre en tu navegador</b> · cero red, cero telemetría</p>
+
+<div class="grid">
+
+<div class="card"><h2>Base64</h2>
+<textarea id="b64in" placeholder="texto o base64…"></textarea>
+<div class="row"><button onclick="b64enc()">codificar ▸</button><button class="ghost" onclick="b64dec()">◂ decodificar</button><button class="ghost" onclick="copyOut('b64out')">copiar</button></div>
+<div class="out" id="b64out"></div></div>
+
+<div class="card"><h2>URL / percent</h2>
+<textarea id="urlin" placeholder="texto o %65%6e…"></textarea>
+<div class="row"><button onclick="urlenc()">codificar ▸</button><button class="ghost" onclick="urldec()">◂ decodificar</button><button class="ghost" onclick="copyOut('urlout')">copiar</button></div>
+<div class="out" id="urlout"></div></div>
+
+<div class="card"><h2>Hex</h2>
+<textarea id="hexin" placeholder="texto o 68 65 78…"></textarea>
+<div class="row"><button onclick="hexenc()">a hex ▸</button><button class="ghost" onclick="hexdec()">de hex ▸</button><button class="ghost" onclick="copyOut('hexout')">copiar</button></div>
+<div class="out" id="hexout"></div></div>
+
+<div class="card"><h2>JWT decode</h2>
+<textarea id="jwtin" placeholder="eyJhbGciOi…"></textarea>
+<div class="row"><button class="lime" onclick="jwtdec()">decodear</button></div>
+<div class="out" id="jwtout"></div></div>
+
+<div class="card"><h2>SHA hashes</h2>
+<textarea id="shain" placeholder="mensaje…"></textarea>
+<div class="row"><button class="lime" onclick="shahash()">hashear</button></div>
+<div class="out" id="shaout"></div></div>
+
+<div class="card"><h2>XOR</h2>
+<textarea id="xorin" placeholder="texto…"></textarea>
+<label class="k">clave</label><input type="text" id="xorkey" value="ctf2026">
+<div class="row"><button onclick="xorenc()">xor → hex</button><button class="ghost" onclick="xordec()">hex → xor</button><button class="ghost" onclick="copyOut('xorout')">copiar</button></div>
+<div class="out" id="xorout"></div></div>
+
+<div class="card"><h2>César / ROT</h2>
+<textarea id="rotin" placeholder="texto…"></textarea>
+<label class="k">desplazamiento <span id="rotval" style="color:var(--lime)">13</span></label>
+<input type="range" min="1" max="25" value="13" id="rotshift" style="width:100%" oninput="rotgo()">
+<div class="out" id="rotout"></div></div>
+
+<div class="card"><h2>UUID v4 + timestamps</h2>
+<div class="row"><button class="lime" onclick="uuidgen()">nuevo uuid</button></div>
+<div class="out" id="uuident">—</div>
+<label class="k">unix → fecha</label>
+<div class="row"><input type="text" id="tsin" placeholder="1755970000" style="flex:1"><button class="ghost" onclick="tsgo()">→</button></div>
+<div class="out" id="tsout"></div></div>
+
+</div>
+<footer>HACKDECK v0.1 · single file · funciona sin conexión · úsalo solo donde tengas permiso ✧</footer>
+</main>
+
+<script>
+"use strict";
+const $=id=>document.getElementById(id);
+function show(id,text,cls){const el=$(id);el.textContent=text;el.className="out"+(cls?" "+cls:"");}
+function copyOut(id){navigator.clipboard&&navigator.clipboard.writeText($(id).textContent);}
+
+/* base64 unicode-safe */
+const b64e=s=>btoa(String.fromCharCode(...new TextEncoder().encode(s)));
+const b64d=s=>new TextDecoder().decode(Uint8Array.from(atob(s.replace(/-/g,"+").replace(/_/g,"/").trim()),c=>c.charCodeAt(0)));
+function b64enc(){try{show("b64out",b64e($("b64in").value),"ok")}catch(e){show("b64out","error: "+e.message,"bad")}}
+function b64dec(){try{show("b64out",b64d($("b64in").value),"ok")}catch(e){show("b64out","entrada no es base64 válida","bad")}}
+
+function urlenc(){show("urlout",encodeURIComponent($("urlin").value),"ok")}
+function urldec(){try{show("urlout",decodeURIComponent($("urlin").value.replace(/\+/g,"%20")),"ok")}catch(e){show("urlout","percent-encoding inválido","bad")}}
+
+function hexenc(){const bytes=new TextEncoder().encode($("hexin").value);show("hexout",[...bytes].map(b=>b.toString(16).padStart(2,"0")).join(" "),"ok")}
+function hexdec(){try{const clean=$("hexin").value.replace(/0x/gi,"").replace(/[^0-9a-f]/gi,"");if(clean.length%2)throw 0;const arr=new Uint8Array(clean.match(/../g).map(h=>parseInt(h,16)));show("hexout",new TextDecoder().decode(arr),"ok")}catch(e){show("hexout","hex inválido (longitud impar o caracteres raros)","bad")}}
+
+function jwtdec(){
+  try{
+    const p=$("jwtin").value.trim().split(".");
+    if(p.length<2)throw new Error("un JWT tiene header.payload.firma");
+    const h=JSON.parse(b64d(p[0])),pl=JSON.parse(b64d(p[1]));
+    const extra=[];
+    for(const k of["exp","iat","nbf"])if(pl[k])extra.push(`${k}: ${pl[k]} → ${new Date(pl[k]*1000).toISOString()}`);
+    show("jwtout",`HEADER\n${JSON.stringify(h,null,2)}\n\nPAYLOAD\n${JSON.stringify(pl,null,2)}${extra.length?"\n\n"+extra.join("\n"):""}`,"ok");
+  }catch(e){show("jwtout","error: "+e.message,"bad")}
+}
+
+async function shahash(){
+  try{
+    const data=new TextEncoder().encode($("shain").value);
+    const lines=[];
+    for(const algo of["SHA-1","SHA-256","SHA-512"]){
+      const dig=[...new Uint8Array(await crypto.subtle.digest(algo,data))];
+      lines.push(`${algo.replace("-","").toLowerCase()}: ${dig.map(b=>b.toString(16).padStart(2,"0")).join("")}`);
+    }
+    show("shaout",lines.join("\n"),"ok");
+  }catch(e){show("shaout","error: "+e.message,"bad")}
+}
+
+function xorBytes(bytes,key){return bytes.map((b,i)=>b^key.charCodeAt(i%key.length)&0xff);}
+function xorenc(){const k=$("xorkey").value;if(!k)return show("xorout","pon una clave","bad");
+  show("xorout",[...xorBytes(new TextEncoder().encode($("xorin").value),k)].map(b=>b.toString(16).padStart(2,"0")).join(""),"ok");}
+function xordec(){const k=$("xorkey").value;if(!k)return show("xorout","pon una clave","bad");
+  try{const clean=$("xorin").value.replace(/[^0-9a-f]/gi,"");if(clean.length%2)throw 0;
+    const arr=new Uint8Array(clean.match(/../g).map(h=>parseInt(h,16)));
+    show("xorout",new TextDecoder().decode(new Uint8Array(xorBytes(arr,k))),"ok");
+  }catch(e){show("xorout","hex inválido","bad")}}
+
+function rotgo(){
+  const s=parseInt($("rotshift").value);$("rotval").textContent=s;
+  show("rotout",$("rotin").value.replace(/[a-z]/gi,c=>{
+    const base=c<="Z"?65:97;return String.fromCharCode((c.charCodeAt(0)-base+s)%26+base);
+  })||"—");
+}
+
+function uuidgen(){show("uuident",(crypto.randomUUID?crypto.randomUUID():"xxxxxxxxyxxx".replace(/[xy]/g,c=>{const r=Math.random()*16|0;return(c==="x"?r:(r&0x3|0x8)).toString(16)})),"ok")}
+function tsgo(){const n=Number($("tsin").value.trim());if(!n)return show("tsout","pon un unix timestamp","bad");
+  show("tsout",new Date(n*(n>1e12?1:1000)).toISOString()+" (UTC)","ok")}
+
+/* self-test para CI headless: ?selftest=1 */
+window.__selftest=function(){
+  const results=[];
+  function eq(name,got,want){results.push([name,Object.is(got,want)||got===want?"PASS":"FAIL"]);if(got!==want)console.error(name,got,"!=",want);}
+  eq("b64e",b64e("hack"),"aGFjaw==");
+  eq("b64d",b64d("aGFjaw=="),"hack");
+  eq("url",encodeURIComponent("/¿qué?"),"%2F%C2%BFqu%C3%A9%3F");
+  eq("hex",(()=>{$("hexin").value="hi";hexenc();return $("hexout").textContent})(),"68 69");
+  eq("hexback",(()=>{$("hexin").value="68 69";hexdec();return $("hexout").textContent})(),"hi");
+  eq("rot13",(()=>{$("rotin").value="abc";$("rotshift").value=13;rotgo();return $("rotout").textContent})(),"nop");
+  const jwt=b64e(JSON.stringify({alg:"none"}))+"."+b64e(JSON.stringify({sub:1}))+".";
+  eq("jwt",(()=>{$("jwtin").value=jwt;jwtdec();return $("jwtout").className})(),"out ok");
+  eq("xor",(()=>{$("xorin").value="secreto";$("xorkey").value="llave";xorenc();
+    $("xorin").value=$("xorout").textContent;xordec();return $("xorout").textContent})(),"secreto");
+  eq("uuid",(uuidgen(),/^[-0-9a-f]{36}$/.test($("uuident").textContent))?"si":"no","si");
+  eq("ts",(tsgo(),$("tsin").value=1755970000,tsgo(),$("tsout").textContent.includes("2025"))?"si":"no","si");
+  return results.map(r=>r.join(":")).join(" ");
+};
+</script>
+</body>
+</html>
